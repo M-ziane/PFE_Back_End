@@ -24,21 +24,25 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 public class ClientController {
+    //List<Client> findByFilter(String typologie,boolean sexe);*
 
     @Autowired
     ClientRepository clientRepository;
+
 //liste de tous les clients
     @GetMapping("/clients")
     @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING')")
     public ResponseEntity<List<Client>> getAllClients(@RequestParam(required = false) String name) {
         try {
             List<Client> clients = new ArrayList<Client>();
-
-            if (name == null)
+            if (name == null){
+                //clientRepository.findBySexe(false ).forEach(clients::add);
+                //clientRepository.findBySexe(true ).forEach(clients::add);
                 clientRepository.findAll().forEach(clients::add);
-            else
+                }
+            else{
                 clientRepository.findByNameContaining(name).forEach(clients::add);
-                //Name ??
+                }
             if (clients.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
@@ -48,6 +52,8 @@ public class ClientController {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    //filtrer les clients
+
 //trouver un client par son id
     @GetMapping("/clients/{id}")
     @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING')")
@@ -60,6 +66,28 @@ public class ClientController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+    //trouver les clients apres filtrage
+    @GetMapping("/clients/filter")
+    @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING')")
+    public ResponseEntity<List<Client>> filterClient(@RequestParam(required = false) String typologie) {
+
+        try {
+            List<Client> clients = clientRepository.findByTypologie(typologie);
+            System.out.println(clients);
+            //clientRepository= (ClientRepository) clientRepository.findByTypologie(typologie);
+            //clients=clientRepository.findBySexe(false);
+            System.out.println(clientRepository);
+            System.out.println(clients);
+            if (clients.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            return new ResponseEntity<>(clients, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 //créer un client
     @PostMapping("/clients")
     @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING')")
@@ -78,12 +106,11 @@ public class ClientController {
     @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING')")
     public ResponseEntity<Client> updateClient(@PathVariable("id") long id, @RequestBody Client client) {
         Optional<Client> clientData = clientRepository.findById(id);
-
         if (clientData.isPresent()) {
             Client _client = clientData.get();
             _client.setName(client.getName());
             _client.setCode(client.getCode());
-            _client.setPublished(client.isPublished());
+            _client.setSexe(client.isSexe());
             return new ResponseEntity<>(clientRepository.save(_client), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -114,12 +141,12 @@ public class ClientController {
         }
 
     }
-//les clients published
+//les clients Male sexe = false ;
     @GetMapping("/clients/published")
     @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING')")
-    public ResponseEntity<List<Client>> findByPublished() {
+    public ResponseEntity<List<Client>> findBySexe() {
         try {
-            List<Client> clients = clientRepository.findByPublished(true);
+            List<Client> clients = clientRepository.findBySexe(false);
 
             if (clients.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
