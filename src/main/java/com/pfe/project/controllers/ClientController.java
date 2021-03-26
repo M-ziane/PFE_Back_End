@@ -141,6 +141,7 @@ public class ClientController {
             _client.setVille(client.getVille());
             _client.setCodePostal(client.getCodePostal());
             _client.setTypologie(client.getTypologie());
+            _client.setCommentaire(client.getCommentaire());
             return new ResponseEntity<>(clientRepository.save(_client), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

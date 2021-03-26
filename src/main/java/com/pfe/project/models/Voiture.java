@@ -1,21 +1,10 @@
 package com.pfe.project.models;
-
-/*
-public class Voiture {
-
-}
-*/
-
-
 import javax.persistence.*;
 import java.util.Set;
 
-//implements Serializable
 @Entity
 public class Voiture{
-
     //private static final long serialVersionUID = 1L;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

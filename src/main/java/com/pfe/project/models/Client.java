@@ -41,6 +41,9 @@ public class Client {
     @Size(max = 50)
     @Email
     private String email;
+//Commentaire
+    @Column(name = "commentaire")
+    private String commentaire;
 
     @OneToMany(mappedBy ="clientA")
     Set<Contrat> contrat ;
@@ -57,7 +60,7 @@ public class Client {
 
     public Client(String name, String code, boolean sexe,String typologie ,
                   String adresse, String ville , Integer codePostal,
-                  Integer num_tel1, Integer num_tel2, Integer num_tel3,String email) {
+                  Integer num_tel1, Integer num_tel2, Integer num_tel3,String email,String commentaire) {
         this.name = name;
         this.code = code;
         this.sexe = sexe;
@@ -69,6 +72,8 @@ public class Client {
         this.num_tel2= num_tel2;
         this.num_tel3= num_tel3;
         this.email=email;
+        this.commentaire=commentaire;
+
     }
     public long getId() {
         return id;
@@ -161,10 +166,16 @@ public class Client {
     public void setEmail(String email) {
         this.email = email;
     }
+    public String getCommentaire() {
+        return commentaire;
+    }
 
+    public void setCommentaire(String commentaire) {
+        this.commentaire = commentaire;
+    }
     @Override
     public String toString() {
-        return "Client: [id=" + id + ", nom=" + name + ", Code Client=" + code + ", sexe=" + sexe +"typologie="+typologie+ "]";
+        return "Client: [id=" + id + ", nom=" + name + ", Code Client=" + code + ", sexe=" + sexe +"typologie="+typologie+"commentaire="+ commentaire + "]";
     }
 
 }
