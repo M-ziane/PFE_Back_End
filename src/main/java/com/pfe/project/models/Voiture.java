@@ -17,32 +17,7 @@ public class Voiture{
 @OneToMany(mappedBy ="voitureA")
 Set<Contrat> contrat;
 
-    /*
-      @OneToMany(cascade = CascadeType.ALL,
-              mappedBy = "author", orphanRemoval = true)
-      private List<Book> books = new ArrayList<>();
 
-      public void addBook(Book book) {
-          this.books.add(book);
-          book.setAuthor(this);
-      }
-
-      public void removeBook(Book book) {
-          book.setAuthor(null);
-          this.books.remove(book);
-      }
-
-      public void removeBooks() {
-          Iterator<Book> iterator = this.books.iterator();
-
-          while (iterator.hasNext()) {
-              Book book = iterator.next();
-
-              book.setAuthor(null);
-              iterator.remove();
-          }
-      }
-  */
     public Long getId() {
         return id;
     }
@@ -75,20 +50,6 @@ Set<Contrat> contrat;
         this.km = km;
     }
 
-   /* public List<Book> getBooks() {
-        return books;
-    }
-
-    public void setBooks(List<Book> books) {
-        this.books = books;
-    }*/
-/*
-    @Override
-    public String toString() {
-        return "Voiture{" + "id=" + id + ", modele=" + modele
-                + ", marque=" + marque + ", KM=" + km + '}';
-    }
-*/
     public String getImmatriculation() {
         return immatriculation;
     }

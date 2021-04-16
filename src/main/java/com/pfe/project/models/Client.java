@@ -175,7 +175,7 @@ public class Client {
     }
     @Override
     public String toString() {
-        return "Client: [id=" + id + ", nom=" + name + ", Code Client=" + code + ", sexe=" + sexe +"typologie="+typologie+"commentaire="+ commentaire + "]";
+        return "Client: [id=" + id + ", nom=" + name + ", Code Client =" + code + ", sexe =" + sexe +", typologie ="+typologie+", commentaire ="+ commentaire + "]";
     }
 
 }

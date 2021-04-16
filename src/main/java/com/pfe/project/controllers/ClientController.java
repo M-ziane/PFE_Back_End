@@ -1,12 +1,16 @@
 package com.pfe.project.controllers;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+
 import com.pfe.project.models.Client;
+import com.pfe.project.models.Contrat;
+import com.pfe.project.models.Voiture;
 import com.pfe.project.repository.ClientRepository;
 import com.pfe.project.repository.ContratRepository;
 import com.pfe.project.repository.VoitureRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,6 +25,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -32,10 +38,10 @@ public class ClientController {
     ClientRepository clientRepository;
 
     @Autowired
-    ContratRepository contratRepository;
+    VoitureRepository voitureRepository ;
 
     @Autowired
-    VoitureRepository voitureRepository;
+    ContratRepository contratRepository ;
 
 //liste de tous les clients
     @GetMapping("/clients")
@@ -60,7 +66,51 @@ public class ClientController {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    //-------------------------------------
+
+/*
+    @GetMapping("/clientsT")
+    @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING')")
+    public ResponseEntity<List<ClientSummary>> getAllClientsT(@RequestParam(required = false) String name) {
+        try {
+            List<ClientSummary> clients = new ArrayList<ClientSummary>();
+
+                clientRepository.getAll().forEach(clients::add);
+
+            if (clients.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+
+            return new ResponseEntity<>(clients, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+*/
+    //-------------------------------------
     //filtrer les clients
+    @GetMapping("/clientsf")
+    @PreAuthorize("hasRole('CC') or hasRole('MARKETING')")
+    public ResponseEntity<List<Client>> getAllClientsF(@RequestParam(required = false) Boolean sexe){
+        try {
+            List<Client> clients = new ArrayList<Client>();
+            if (sexe == null){
+                clientRepository.findAll().forEach(clients::add);
+            }
+            else{
+                clients = clientRepository.findBySexe(sexe);
+            }
+            if (clients.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+
+            return new ResponseEntity<>(clients, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 //trouver un client par son id
     @GetMapping("/clients/{id}")
@@ -94,21 +144,7 @@ public class ClientController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    //les clients Male sexe = false ;
-    @GetMapping("/clients/published")
-    @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING')")
-    public ResponseEntity<List<Client>> findBySexe() {
-        try {
-            List<Client> clients = clientRepository.findBySexe(false);
 
-            if (clients.isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            }
-            return new ResponseEntity<>(clients, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
 
 //créer un client // à enlever
     @PostMapping("/clients")
@@ -172,6 +208,91 @@ public class ClientController {
         }
 
     }
+//
+    @GetMapping("/clients/bouti")
+    @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING')")
+    public ResponseEntity<Map<String, Object>> getCotratByVoiture(@RequestParam(required = false) String marque,
+                                                     @RequestParam(required = false) String modele, @RequestParam(defaultValue = "0") int page,
+                                                     @RequestParam(defaultValue = "6") int size,
+                                                     @RequestParam(defaultValue = "id,desc") String[] sort
+                                                     )
+    {         try{
+
+                    List<Client> clients = new ArrayList<Client>();
+                    Pageable paging = PageRequest.of(page, size);
+
+                    /*
+                    if( ("".equals(marque)) and ("".equals(modele)) ) clientRepository.findAll()
+                    else if("".equals(modele)) clientRepository.findByMarque(marque)
+                    else if ("".equals(marque)) client repository.findByModele(modele)
+                    else{}
+                    */
 
 
+                    List<Voiture> vtrs = voitureRepository.findByMarqueAndModele(marque , modele);
+
+                    List<Contrat> contrats = contratRepository.findByVoitureAIn(vtrs);
+
+                    Page<Client> pageTuts = clientRepository.findByContratIn(contrats,paging);
+
+                    clients = pageTuts.getContent();
+
+                    //System.out.println(clients);
+                    //--------
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("clients", clients);
+                    response.put("currentPage", pageTuts.getNumber());
+                    response.put("totalClients", pageTuts.getTotalElements());
+                    response.put("totalPages", pageTuts.getTotalPages());
+
+
+                    return new ResponseEntity<>(response, HttpStatus.OK);
+                } catch (Exception e) {
+                    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+
+    }
+
+    @GetMapping("/clients/bouti/date")
+    @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING')")
+    public ResponseEntity<Map<String, Object>> getCotratByDate(@RequestParam(required = false) @DateTimeFormat(pattern="yyyy-MM-dd")  Date datestart,
+                                                               @RequestParam(required = false) @DateTimeFormat(pattern="yyyy-MM-dd")  Date dateend,
+                                                               @RequestParam(defaultValue = "0") int page,
+                                                               @RequestParam(defaultValue = "6") int size,
+                                                               @RequestParam(defaultValue = "id,desc") String[] sort
+    )
+    {         try{
+
+        List<Client> clients = new ArrayList<Client>();
+        Pageable paging = PageRequest.of(page, size);
+
+                    /*
+                    if( ("".equals(marque)) and ("".equals(modele)) ) clientRepository.findAll()
+                    else if("".equals(modele)) clientRepository.findByMarque(marque)
+                    else if ("".equals(marque)) client repository.findByModele(modele)
+                    else{}
+                    */
+
+        List<Contrat> contrats = contratRepository.findByDateComptabilisationBetween(datestart,dateend);
+        Page<Client> pageTuts = clientRepository.findByContratIn(contrats,paging);
+
+        clients = pageTuts.getContent();
+
+        System.out.println(clients);
+        //--------
+        Map<String, Object> response = new HashMap<>();
+        response.put("clients", clients);
+        response.put("currentPage", pageTuts.getNumber());
+        response.put("totalClients", pageTuts.getTotalElements());
+        response.put("totalPages", pageTuts.getTotalPages());
+
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    } catch (Exception e) {
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    }
+
+   // */
 }

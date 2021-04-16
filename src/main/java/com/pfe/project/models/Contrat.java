@@ -1,6 +1,5 @@
 package com.pfe.project.models;
 
-
 import javax.persistence.*;
 import java.util.Date;
 
@@ -21,15 +20,15 @@ public class Contrat {
     private Client clientA;
 
     //extra column
-    @Column(name="modalite_paiement")
+    @Column(name="modalitePaiement")
     private boolean modalitePaiement;
 
-    @Column(name="point_Vente")
+    @Column(name="pointVente")
     private String pointVente;
 
   //  @Column (name="date_comptabilisation")
     @Temporal(TemporalType.DATE)
-    Date date_comptabilisation;
+    Date dateComptabilisation;
 
     @Column(name="Dpt")
     private String dpt ;
@@ -73,11 +72,11 @@ public class Contrat {
         this.pointVente = pointVente;
     }
     public Date getDate_comptabilisation(){
-        return date_comptabilisation;
+        return dateComptabilisation;
     }
 
     public void setDate_comptabilisation(Date date_comptabilisation) {
-        this.date_comptabilisation = date_comptabilisation;
+        this.dateComptabilisation = date_comptabilisation;
     }
 
     public String getDpt() {
