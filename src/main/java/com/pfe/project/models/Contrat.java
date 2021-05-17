@@ -10,23 +10,22 @@ public class Contrat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "voiture_ID")
     private Voiture voitureA;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "client_ID")
     private Client clientA;
 
     //extra column
     @Column(name="modalitePaiement")
-    private boolean modalitePaiement;
+    private Boolean modalitePaiement;
 
     @Column(name="pointVente")
     private String pointVente;
 
-  //  @Column (name="date_comptabilisation")
+   @Column (name="date_comptabilisation")
     @Temporal(TemporalType.DATE)
     Date dateComptabilisation;
 
@@ -34,7 +33,7 @@ public class Contrat {
     private String dpt ;
 
     @Column(name="Nom_Vendeur")
-    private String Nom_Vendeur;
+    private String nomVendeur;
 
     public long getContratID() {
         return id;
@@ -87,11 +86,11 @@ public class Contrat {
         this.dpt = dpt;
     }
 
-    public String getNom_Vendeur() {
-        return Nom_Vendeur;
+    public String getNomVendeur() {
+        return nomVendeur;
     }
 
-    public void setNom_Vendeur(String nom_Vendeur) {
-        Nom_Vendeur = nom_Vendeur;
+    public void setNomVendeur(String nom_Vendeur) {
+        this.nomVendeur = nom_Vendeur;
     }
 }

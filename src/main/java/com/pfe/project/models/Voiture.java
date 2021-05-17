@@ -12,7 +12,7 @@ public class Voiture{
     private String marque;
     private String modele;
     private String immatriculation;
-    private long km;
+    //private long km;
 
 @OneToMany(mappedBy ="voitureA")
 Set<Contrat> contrat;
@@ -42,13 +42,13 @@ Set<Contrat> contrat;
         this.modele = modele;
     }
 
-    public Long getKm() {
+    /*public Long getKm() {
         return km;
     }
 
     public void setKm(Long km) {
         this.km = km;
-    }
+    }*/
 
     public String getImmatriculation() {
         return immatriculation;

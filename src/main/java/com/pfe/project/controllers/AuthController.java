@@ -1,11 +1,18 @@
 package com.pfe.project.controllers;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
+import com.pfe.project.models.ERole;
+import com.pfe.project.models.Role;
+import com.pfe.project.models.User;
 import com.pfe.project.payload.request.LoginRequest;
+import com.pfe.project.payload.request.SignupRequest;
+import com.pfe.project.payload.response.MessageResponse;
 import com.pfe.project.security.jwt.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -64,7 +71,7 @@ public class AuthController {
 												 userDetails.getEmail(), 
 												 roles));
 	}
-/* //Register:
+//Register:
 	@PostMapping("/signup")
 	public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
 		if (userRepository.existsByUsername(signUpRequest.getUsername())) {
@@ -80,17 +87,18 @@ public class AuthController {
 		}
 
 		// Create new user's account
-		User user = new User(signUpRequest.getUsername(), 
+		User user = new User(signUpRequest.getUsername(),
 							 signUpRequest.getEmail(),
 							 encoder.encode(signUpRequest.getPassword()));
 
 		Set<String> strRoles = signUpRequest.getRole();
 		Set<Role> roles = new HashSet<>();
-
+		System.out.println(strRoles);
 		if (strRoles == null) {
 			Role userRole = roleRepository.findByName(ERole.ROLE_CALL_CENTER)
 					.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
 			roles.add(userRole);
+			System.out.println("rk mli7 chuia");
 		} else {
 			strRoles.forEach(role -> {
 				switch (role) {
@@ -119,5 +127,5 @@ public class AuthController {
 
 		return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
 	}
-	*/
+
 }

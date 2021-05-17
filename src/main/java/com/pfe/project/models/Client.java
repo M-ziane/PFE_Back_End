@@ -21,7 +21,7 @@ public class Client {
     @Column(name = "code_client")
     private String code;
     @Column(name = "sexe")
-    private boolean sexe;  //Sexe sera un bool 1 = homme 0 = femme
+    private Boolean sexe;  //Sexe sera un bool 1 = homme 0 = femme
     @Column(name = "typologie")
     private String typologie;  //type client : taxi - personnel - taxi ...
     //Localisation
@@ -95,11 +95,11 @@ public class Client {
         this.code = code;
     }
 
-    public boolean isSexe() {
+    public Boolean isSexe() {
         return sexe;
     }
 
-    public void setSexe(boolean isPublished) {
+    public void setSexe(Boolean isPublished) {
         this.sexe = isPublished;
     }
 

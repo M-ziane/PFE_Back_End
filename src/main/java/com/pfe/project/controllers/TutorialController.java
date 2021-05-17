@@ -55,30 +55,27 @@ public class TutorialController {
             List<Order> orders = new ArrayList<Order>();
 
             if (sort[0].contains(",")) {
-                // will sort more than 2 fields
-                // sortOrder="field, direction"
                 for (String sortOrder : sort) {
                     String[] _sort = sortOrder.split(",");
                     orders.add(new Order(getSortDirection(_sort[1]), _sort[0]));
                 }
             } else {
-                // sort=[field, direction]
                 orders.add(new Order(getSortDirection(sort[1]), sort[0]));
             }
-
             List<Client> clients = new ArrayList<Client>();
             Pageable pagingSort = PageRequest.of(page, size, Sort.by(orders));
-
             Page<Client> pageTuts;
             if (name == null){
                 pageTuts = tutorialRepository.findAll(pagingSort);
+                System.out.println(11);
             }
             else {
+                System.out.println(2);
                 pageTuts = tutorialRepository.findByNameContaining(name, pagingSort);
-                //System.out.println("filter by  name");
+                System.out.println("filter by  name");
             }
             clients = pageTuts.getContent();
-
+            System.out.println(3);
             Map<String, Object> response = new HashMap<>();
             response.put("clients", clients);
             response.put("currentPage", pageTuts.getNumber());
@@ -106,15 +103,13 @@ public class TutorialController {
             Page<Client> pageTuts ;
                     //= tutorialRepository.findBySexeAndTypologie(sexe,typologie,paging);
 
+            //fornt end ====> "".equals(typologie)
+            if ("".equals(typologie)) pageTuts = tutorialRepository.findBySexe(sexe , paging);
+            //else if ((sexe != true) && (sexe != false)) pageTuts = tutorialRepository.findByTypologie(typologie, paging);
+            else pageTuts = tutorialRepository.findBySexeAndTypologie(sexe,typologie,paging);
 
-            if ("".equals(typologie))
-                pageTuts = tutorialRepository.findBySexe(sexe , paging);
-            else {
-                pageTuts = tutorialRepository.findBySexeAndTypologie(sexe,typologie,paging);
-                //System.out.println("filter by  name");
-            }
-
-            System.out.println(sexe);
+            //System.out.println((sexe != true) && (sexe != false));
+            System.out.println(sexe);  //sexe = false
             System.out.println(typologie);
 
             clients = pageTuts.getContent();
