@@ -3,6 +3,7 @@ package com.pfe.project.models;
 import javax.persistence.*;
 import java.util.Date;
 
+
 @Entity
 @Table(name = "contrat")
 public class Contrat {
@@ -25,10 +26,12 @@ public class Contrat {
     @Column(name="pointVente")
     private String pointVente;
 
-   @Column (name="date_comptabilisation")
+    @Column (name="date_comptabilisation")
+    private java.util.Date dateComptabilisation;
+   /*@Column (name="date_comptabilisation")
     @Temporal(TemporalType.DATE)
     Date dateComptabilisation;
-
+*/
     @Column(name="Dpt")
     private String dpt ;
 

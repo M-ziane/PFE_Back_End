@@ -21,7 +21,7 @@ public class Client {
     @Column(name = "code_client")
     private String code;
     @Column(name = "sexe")
-    private Boolean sexe;  //Sexe sera un bool 1 = homme 0 = femme
+    private String sexe;
     @Column(name = "typologie")
     private String typologie;  //type client : taxi - personnel - taxi ...
     //Localisation
@@ -30,7 +30,7 @@ public class Client {
     @Column(name = "ville")
     private String ville;
     @Column(name = "code_postal")
-    private Integer codePostal;
+    private String codePostal;
     //information personnel
     @Column(name = "num_tel1")
     private Integer num_tel1;
@@ -41,7 +41,6 @@ public class Client {
     @Size(max = 50)
     @Email
     private String email;
-//Commentaire
     @Column(name = "commentaire")
     private String commentaire;
 
@@ -52,14 +51,14 @@ public class Client {
 
     }
 
-    public Client(String name, String code, boolean sexe) {
+    public Client(String name, String code, String sexe) {
         this.name = name;
         this.code = code;
         this.sexe = sexe;
     }
 
-    public Client(String name, String code, boolean sexe,String typologie ,
-                  String adresse, String ville , Integer codePostal,
+    public Client(String name, String code, String sexe,String typologie ,
+                  String adresse, String ville , String codePostal,
                   Integer num_tel1, Integer num_tel2, Integer num_tel3,String email,String commentaire) {
         this.name = name;
         this.code = code;
@@ -95,12 +94,12 @@ public class Client {
         this.code = code;
     }
 
-    public Boolean isSexe() {
+    public String getSexe() {
         return sexe;
     }
 
-    public void setSexe(Boolean isPublished) {
-        this.sexe = isPublished;
+    public void setSexe(String sexe) {
+        this.sexe = sexe;
     }
 
     public void setTypologie(String typologie) {
@@ -127,11 +126,11 @@ public class Client {
         this.adresse = adresse;
     }
 
-    public Integer getCodePostal() {
+    public String getCodePostal() {
         return codePostal;
     }
 
-    public void setCodePostal(Integer codePostal) {
+    public void setCodePostal(String codePostal) {
         this.codePostal = codePostal;
     }
 

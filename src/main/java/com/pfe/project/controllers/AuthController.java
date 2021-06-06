@@ -16,6 +16,7 @@ import com.pfe.project.payload.response.MessageResponse;
 import com.pfe.project.security.jwt.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -95,10 +96,9 @@ public class AuthController {
 		Set<Role> roles = new HashSet<>();
 		System.out.println(strRoles);
 		if (strRoles == null) {
-			Role userRole = roleRepository.findByName(ERole.ROLE_CALL_CENTER)
+			Role userRole = roleRepository.findByName(ERole.ROLE_USER)
 					.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
 			roles.add(userRole);
-			System.out.println("rk mli7 chuia");
 		} else {
 			strRoles.forEach(role -> {
 				switch (role) {
@@ -114,8 +114,13 @@ public class AuthController {
 					roles.add(modRole);
 
 					break;
+				case "CALL_CENTER":
+					Role callRole = roleRepository.findByName(ERole.ROLE_CALL_CENTER)
+							.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+					roles.add(callRole);
+					break;
 				default:
-					Role userRole = roleRepository.findByName(ERole.ROLE_CALL_CENTER)
+					Role userRole = roleRepository.findByName(ERole.ROLE_USER)
 							.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
 					roles.add(userRole);
 				}
