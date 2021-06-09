@@ -26,6 +26,7 @@ public class Contrat {
     @Column(name="pointVente")
     private String pointVente;
 
+
     @Column (name="date_comptabilisation")
     private java.util.Date dateComptabilisation;
    /*@Column (name="date_comptabilisation")
@@ -38,6 +39,23 @@ public class Contrat {
     @Column(name="Nom_Vendeur")
     private String nomVendeur;
 
+    public String getNomVendeur() {
+        return nomVendeur;
+    }
+
+    public void setNomVendeur(String nom_Vendeur) {
+        this.nomVendeur = nom_Vendeur;
+    }
+
+    //NomVendur --> CCA
+/*
+@ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "CC_ID")
+    private CC CCA;
+ public CC getCC(){return cc;}
+ punlic CC setCC(CC cc ) { this.CCA = cc;}
+
+ */
     public long getContratID() {
         return id;
     }
@@ -89,11 +107,5 @@ public class Contrat {
         this.dpt = dpt;
     }
 
-    public String getNomVendeur() {
-        return nomVendeur;
-    }
 
-    public void setNomVendeur(String nom_Vendeur) {
-        this.nomVendeur = nom_Vendeur;
-    }
 }

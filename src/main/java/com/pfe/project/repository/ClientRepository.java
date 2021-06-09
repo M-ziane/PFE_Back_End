@@ -17,11 +17,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ClientRepository extends JpaRepository<Client, Long> , JpaSpecificationExecutor {
 
-
+/*
     Page<Client> findByNameContaining(String name , Pageable pageable);
     Page<Client> findBySexe(Boolean sexe,Pageable pageable);
     Page<Client> findByContratIn(List<Contrat> contrats , Pageable pageable);
-    Page<Client> findBySexeAndContratIn(boolean sexe , List<Contrat> contrats , Pageable pageable);
+    Page<Client> findBySexeAndContratIn(boolean sexe , List<Contrat> contrats , Pageable pageable);*/
     Long countBySexe(String sexe);
     Long countByContratIn(List<Contrat> modele);
     //Long countBySexe(String sexe);

@@ -91,25 +91,16 @@ public class ClientCriteriaRepository {
                     criteriaBuilder.equal(details.get("nomVendeur"),employeeSearchCriteria.getCommerciale())
             );
         }
-        //à regler
-/*
-        if(Objects.nonNull(employeeSearchCriteria.getSlm())){
+
+        if(employeeSearchCriteria.getSlm()==1){
             conditions.add(
                     criteriaBuilder.equal(details.get("nomVendeur"),"AKKARAMOU")
             );
             System.out.println("slm ?");
         }
 
- */
-        /*//date
-        if(Objects.nonNull(employeeSearchCriteria.getSexe())){
 
-            System.out.println(employeeSearchCriteria.getSexe());
-            conditions.add(
-                    criteriaBuilder.equal(fromClients.get("sexe"),employeeSearchCriteria.getSexe())
-            );
-        }
-        */
+
         setOrder(employeePage, criteriaQuery, fromClients);
         TypedQuery<Client> typedQuery = entityManager.createQuery(criteriaQuery
                 .select(fromClients)
@@ -134,20 +125,55 @@ public class ClientCriteriaRepository {
         typedQuery.setMaxResults(employeePage.getPageSize());
 
         Pageable pageable = getPageable(employeePage);
-        /*while (employeePage.getPageNumber() < totalCount.intValue()) {
-            typedQuery.setFirstResult(employeePage.getPageNumber() - 1);
-            typedQuery.setMaxResults(employeePage.getPageSize());
-            System.out.println("Current page: " + typedQuery.getResultList());
-            employeePage.setPageNumber( employeePage.getPageNumber() + employeePage.getPageSize());
-        }*/
         List<Client> result = typedQuery.getResultList();
         System.out.println(result);
         return PageableExecutionUtils.getPage(result,pageable, () -> totalCount);
 
-        //return typedQuery.getResultList();
     }
+    //--------------------------
+    public List<Long> findAllFilteredChart(ClientPage employeePage,
+                                        ClientSearchCriteria employeeSearchCriteria) throws ParseException {
 
+        CriteriaQuery<Client> criteriaQuery = criteriaBuilder.createQuery(Client.class);
+        Root<Client> fromClients = criteriaQuery.from(Client.class);
+        Join<Client, Contrat> details = fromClients.join("contrat");
+        Join<Contrat, Voiture> voiture = details.join("voitureA");
 
+        //***count Total clients
+        CriteriaQuery<Long> countQueryT = criteriaBuilder.createQuery(Long.class);
+        Root<Client> entity_ = countQueryT.from(Client.class);
+        entity_.alias("entitySub");
+        countQueryT.select(criteriaBuilder.count(entity_));
+       // List<Long> result1 = entityManager.createQuery(countQueryT).getResultList();
+        //System.out.println(result1);
+        Long totalCount=entityManager.createQuery(countQueryT).getSingleResult();
+        System.out.println(totalCount);
+
+        //*** count clients filtred
+        CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
+        Root<Client> entity1_ = countQuery.from(Client.class);
+        entity1_.alias("entitySub");
+        countQuery.select(criteriaBuilder.count(entity1_));
+        Predicate restriction = this.getPredicate(employeeSearchCriteria,entity1_);
+
+        System.out.println(countQuery.getResultType());
+
+        if (restriction != null) {
+            countQuery.where(restriction);
+            //countQuery.groupBy(restriction);
+        }
+        //
+
+        Long Count=entityManager.createQuery(countQuery).getSingleResult();
+        System.out.println(Count);
+        //Long totalCount=0L;
+
+        List<Long> result = new ArrayList<>();
+        result.add(Count);
+        result.add(totalCount);
+        System.out.println(result);
+        return result ;
+    }
     private Predicate getPredicate(ClientSearchCriteria employeeSearchCriteria,
                                    Root<Client> employeeRoot) throws ParseException {
 
@@ -174,33 +200,35 @@ public class ClientCriteriaRepository {
             );
         }
         if(Objects.nonNull(employeeSearchCriteria.getSexe())){
-            System.out.println(employeeSearchCriteria.getSexe());
             predicates.add(
                     criteriaBuilder.equal(employeeRoot.get("sexe"),employeeSearchCriteria.getSexe())
             );
         }
         if (Objects.nonNull(employeeSearchCriteria.isMdt())) {
-            System.out.println(employeeSearchCriteria.isMdt());
             predicates.add(
                     criteriaBuilder.equal(details.get("modalitePaiement"),employeeSearchCriteria.isMdt())
             );
         }
         if(Objects.nonNull(employeeSearchCriteria.getPtVente())){
-            System.out.println(employeeSearchCriteria.getPtVente());
             predicates.add(
                     criteriaBuilder.equal(details.get("pointVente"),employeeSearchCriteria.getPtVente())
             );
         }if(Objects.nonNull(employeeSearchCriteria.getCommerciale())){
-            System.out.println(employeeSearchCriteria.getCommerciale());
             predicates.add(
                     criteriaBuilder.equal(details.get("nomVendeur"),employeeSearchCriteria.getCommerciale())
             );
         }
+        //à régler
         if(Objects.nonNull(employeeSearchCriteria.getstartDate())&&Objects.nonNull(employeeSearchCriteria.getEndDate())){
             java.util.Date start = new SimpleDateFormat("yyyy-MM-dd").parse(employeeSearchCriteria.getstartDate());
             Date end =new SimpleDateFormat("yyyy-MM-dd").parse(employeeSearchCriteria.getEndDate());
             predicates.add(
                     criteriaBuilder.between(details.get("dateComptabilisation"), start,end)
+            );
+        }
+        if(employeeSearchCriteria.getSlm() == 1){
+            predicates.add(
+                    criteriaBuilder.equal(details.get("nomVendeur"),"AKKARAMOU")
             );
         }
         return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
@@ -228,4 +256,46 @@ public class ClientCriteriaRepository {
         countQuery.select(criteriaBuilder.count(countRoot)).where(predicate);
         return entityManager.createQuery(countQuery).getSingleResult();
     }
+
+    //--------------------------
+
+    public List<Object[]> findAllSexeChart(ClientPage clientPage,
+                                       ClientSearchCriteria employeeSearchCriteria) throws ParseException {
+
+
+
+        CriteriaQuery<Object[]> criteriaQuerytest = criteriaBuilder.createQuery(Object[].class);
+        Root<Client> root = criteriaQuerytest.from(Client.class);
+        criteriaQuerytest.multiselect(root.get("sexe"), criteriaBuilder.count(root));
+        criteriaQuerytest.groupBy(root.get("sexe"));
+
+        Predicate restriction = this.getPredicate(employeeSearchCriteria,root);  //where
+        if (restriction != null) {
+            criteriaQuerytest.where(restriction);
+        }
+        List<Object[]> result =  entityManager.createQuery(criteriaQuerytest).getResultList();
+        System.out.println(result);
+        return result ;
+    }
+    public List<Object[]> findAllTypologieChart(ClientPage clientPage,
+                                           ClientSearchCriteria employeeSearchCriteria) throws ParseException {
+
+
+
+        CriteriaQuery<Object[]> criteriaQuerytest = criteriaBuilder.createQuery(Object[].class);
+        Root<Client> root = criteriaQuerytest.from(Client.class);
+        criteriaQuerytest.multiselect(root.get("typologie"), criteriaBuilder.count(root));
+        criteriaQuerytest.groupBy(root.get("typologie"));
+
+        Predicate restriction = this.getPredicate(employeeSearchCriteria,root);  //where
+        if (restriction != null) {
+            criteriaQuerytest.where(restriction);
+        }
+        List<Object[]> result =  entityManager.createQuery(criteriaQuerytest).getResultList();
+        System.out.println(result);
+        return result ;
+    }
+
+    //--------------------------
+
 }

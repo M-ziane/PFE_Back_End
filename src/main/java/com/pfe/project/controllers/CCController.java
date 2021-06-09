@@ -88,8 +88,18 @@ public class CCController {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-
+/*
+    @PostMapping("/cc")
+    public ResponseEntity<CC> addCC(@RequestBody CC cc) {
+        try {
+            CC _cc = ccRepository
+                    .save(new CC(cc.getNom(), cc.getAx(),cc.getSucc(),cc.getNumEquipe()));
+            return new ResponseEntity<>(_cc, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+*/
     @GetMapping("/cc/Succ")
     @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING')")
     public ResponseEntity<Map<String, Object>> getAllSuccNull(

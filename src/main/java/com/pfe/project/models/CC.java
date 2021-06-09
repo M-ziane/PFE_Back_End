@@ -23,7 +23,22 @@ public class CC {
     public void setId(int id) {
         this.id = id;
     }
-
+/*
+private int numEquipe;
+public int getNumEquipe(){
+    return numEquipe;
+}
+public int setNumEquipe(int numEquipe){
+    this.numEquipe = numEquipe;
+}
+//Constructor
+public CC(nom, ax,succ ,numEquipe){
+    this.nom = nom;
+    this.succ= succ;
+    this.numEquipe = numEquipe;
+    this.ax = ax;
+}
+ */
     public String getAx() {
         return ax;
     }
