@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CCRepository extends JpaRepository< CC , Integer> {
@@ -15,8 +16,10 @@ public interface CCRepository extends JpaRepository< CC , Integer> {
     Page<CC> findByAxContaining(String ax , Pageable pageable);
     Page<CC> findByNom(String nom ,Pageable pageable);
     Page<CC> findBySuccAndNom(String succ,String nom,Pageable pageable );
-
+    Optional<CC> findById(Long id);
     Page<CC> findBySucc(String succ,Pageable pageable);
+
+    Page<CC> findByNumEquipe(int numEquipe , Pageable pageable);
 
 
 }

@@ -96,9 +96,17 @@ public class AuthController {
 		Set<Role> roles = new HashSet<>();
 		System.out.println(strRoles);
 		if (strRoles == null) {
-			Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-					.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-			roles.add(userRole);
+			System.out.println(signUpRequest.getChef());
+			if(signUpRequest.getChef()){
+				Role modRole = roleRepository.findByName(ERole.ROLE_CC)
+						.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+				roles.add(modRole);
+			}
+			else {
+				Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+						.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+				roles.add(userRole);
+			}
 		} else {
 			strRoles.forEach(role -> {
 				switch (role) {

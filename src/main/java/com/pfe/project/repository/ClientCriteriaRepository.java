@@ -94,7 +94,7 @@ public class ClientCriteriaRepository {
 
         if(employeeSearchCriteria.getSlm()==1){
             conditions.add(
-                    criteriaBuilder.equal(details.get("nomVendeur"),"AKKARAMOU")
+                    criteriaBuilder.equal(details.get("nomVendeur"),"Houda Ennachet")
             );
             System.out.println("slm ?");
         }
@@ -295,7 +295,65 @@ public class ClientCriteriaRepository {
         System.out.println(result);
         return result ;
     }
+    public List<Object[]> findAllMarqueChart(ClientPage clientPage,
+                                                ClientSearchCriteria employeeSearchCriteria) throws ParseException {
 
+
+
+        CriteriaQuery<Object[]> criteriaQuerytest = criteriaBuilder.createQuery(Object[].class);
+        Root<Client> root = criteriaQuerytest.from(Client.class);
+        Join<Client, Contrat> details = root.join("contrat");
+        Join<Contrat, Voiture> voiture = details.join("voitureA");
+        criteriaQuerytest.multiselect(voiture.get("marque"), criteriaBuilder.count(root));
+        criteriaQuerytest.groupBy(voiture.get("marque"));
+
+        Predicate restriction = this.getPredicate(employeeSearchCriteria,root);  //where
+        if (restriction != null) {
+            criteriaQuerytest.where(restriction);
+        }
+        List<Object[]> result =  entityManager.createQuery(criteriaQuerytest).getResultList();
+        System.out.println(result);
+        return result ;
+    }
+    public List<Object[]> findAllModeleChart(ClientPage clientPage,
+                                             ClientSearchCriteria employeeSearchCriteria) throws ParseException {
+
+
+
+        CriteriaQuery<Object[]> criteriaQuerytest = criteriaBuilder.createQuery(Object[].class);
+        Root<Client> root = criteriaQuerytest.from(Client.class);
+        Join<Client, Contrat> details = root.join("contrat");
+        Join<Contrat, Voiture> voiture = details.join("voitureA");
+        criteriaQuerytest.multiselect(voiture.get("modele"), criteriaBuilder.count(root));
+        criteriaQuerytest.groupBy(voiture.get("modele"));
+
+        Predicate restriction = this.getPredicate(employeeSearchCriteria,root);  //where
+        if (restriction != null) {
+            criteriaQuerytest.where(restriction);
+        }
+        List<Object[]> result =  entityManager.createQuery(criteriaQuerytest).getResultList();
+        System.out.println(result);
+        return result ;
+    }
+    public List<Object[]> findAllPtVenteChart(ClientPage clientPage,
+                                             ClientSearchCriteria employeeSearchCriteria) throws ParseException {
+
+
+
+        CriteriaQuery<Object[]> criteriaQuerytest = criteriaBuilder.createQuery(Object[].class);
+        Root<Client> root = criteriaQuerytest.from(Client.class);
+        Join<Client, Contrat> details = root.join("contrat");
+        criteriaQuerytest.multiselect(details.get("pointVente"), criteriaBuilder.count(root));
+        criteriaQuerytest.groupBy(details.get("pointVente"));
+
+        Predicate restriction = this.getPredicate(employeeSearchCriteria,root);  //where
+        if (restriction != null) {
+            criteriaQuerytest.where(restriction);
+        }
+        List<Object[]> result =  entityManager.createQuery(criteriaQuerytest).getResultList();
+        System.out.println(result);
+        return result ;
+    }
     //--------------------------
 
 }

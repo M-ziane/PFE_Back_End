@@ -1,5 +1,6 @@
 package com.pfe.project.models;
 
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -10,35 +11,48 @@ public class CC {
     //private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     private String ax;
     private String nom;
     private String succ;
+    private int numEquipe ;
+    private Boolean chef;
+public CC(){
 
-    public int getId() {
+}
+    public CC(String nom, String ax, String succ, int numEquipe, Boolean chef) {
+        this.nom = nom;
+        this.succ= succ;
+        this.numEquipe = numEquipe;
+        this.ax = ax;
+        this.chef = chef;
+    }
+
+
+    public Boolean getChef() {
+        return chef;
+    }
+
+    public void setChef(Boolean chef) {
+        this.chef = chef;
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
-/*
-private int numEquipe;
-public int getNumEquipe(){
-    return numEquipe;
-}
-public int setNumEquipe(int numEquipe){
-    this.numEquipe = numEquipe;
-}
-//Constructor
-public CC(nom, ax,succ ,numEquipe){
-    this.nom = nom;
-    this.succ= succ;
-    this.numEquipe = numEquipe;
-    this.ax = ax;
-}
- */
+
+    public int getNumEquipe(){
+        return numEquipe;
+    }
+    public void setNumEquipe(int numEquipe) {
+        this.numEquipe = numEquipe;
+    }
+
     public String getAx() {
         return ax;
     }

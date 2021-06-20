@@ -15,7 +15,17 @@ public class SignupRequest {
     private String email;
     
     private Set<String> role;
-    
+
+    private Boolean chef ;
+
+    public Boolean getChef() {
+        return chef;
+    }
+
+    public void setChef(Boolean chef) {
+        this.chef = chef;
+    }
+
     @NotBlank
     @Size(min = 6, max = 40)
     private String password;

@@ -5,12 +5,14 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.Set;
 
+import static javax.persistence.GenerationType.AUTO;
+
 @Entity
 @Table(name = "client")
 public class Client {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = AUTO)
     private long id;
     //information generale
     @NotBlank
@@ -33,11 +35,11 @@ public class Client {
     private String codePostal;
     //information personnel
     @Column(name = "num_tel1")
-    private Integer num_tel1;
+    private Long num_tel1;
     @Column(name = "num_tel2")
-    private Integer num_tel2;
+    private Long num_tel2;
     @Column(name = "num_tel3")
-    private Integer num_tel3;
+    private Long num_tel3;
     @Size(max = 50)
     @Email
     private String email;
@@ -59,7 +61,7 @@ public class Client {
 
     public Client(String name, String code, String sexe,String typologie ,
                   String adresse, String ville , String codePostal,
-                  Integer num_tel1, Integer num_tel2, Integer num_tel3,String email,String commentaire) {
+                  Long num_tel1, Long num_tel2, Long num_tel3,String email,String commentaire) {
         this.name = name;
         this.code = code;
         this.sexe = sexe;
@@ -76,6 +78,10 @@ public class Client {
     }
     public long getId() {
         return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -134,27 +140,27 @@ public class Client {
         this.codePostal = codePostal;
     }
 
-    public Integer getNum_tel1() {
+    public Long getNum_tel1() {
         return num_tel1;
     }
 
-    public Integer getNum_tel2() {
+    public Long getNum_tel2() {
         return num_tel2;
     }
 
-    public Integer getNum_tel3() {
+    public Long getNum_tel3() {
         return num_tel3;
     }
 
-    public void setNum_tel1(Integer num_tel1) {
+    public void setNum_tel1(Long num_tel1) {
         this.num_tel1 = num_tel1;
     }
 
-    public void setNum_tel2(Integer num_tel2) {
+    public void setNum_tel2(Long num_tel2) {
         this.num_tel2 = num_tel2;
     }
 
-    public void setNum_tel3(Integer num_tel3) {
+    public void setNum_tel3(Long num_tel3) {
         this.num_tel3 = num_tel3;
     }
 

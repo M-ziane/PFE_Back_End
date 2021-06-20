@@ -56,10 +56,10 @@ public class Contrat {
  punlic CC setCC(CC cc ) { this.CCA = cc;}
 
  */
-    public long getContratID() {
+    public Long getId() {
         return id;
     }
-
+    public void setId(Long id){this.id=id;}
     public Voiture getVoiture() {
         return voitureA;
     }
