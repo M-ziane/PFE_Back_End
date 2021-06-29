@@ -70,6 +70,32 @@ public class ClientController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    //test
+    @GetMapping("/clients/test")
+    @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING') or hasRole('ROLE_USER')")
+    public ResponseEntity<Map<String, Object>> test25(ClientPage clientPage, ClientSearchCriteria clientSearchCriteria) {
+        try {
+            List<Object[]> clients = new ArrayList<Object[]>();
+            Pageable paging = PageRequest.of(clientPage.getPageNumber(), clientPage.getPageSize());
+
+
+            Page<Object[]> response1 = clientCriteriaRepository.test1(clientPage, clientSearchCriteria);
+            //System.out.println(clientSearchCriteria);
+             clients = response1.getContent();
+            Map<String, Object> response = new HashMap<>();
+
+            response.put("clients", clients);
+            response.put("currentPage", clientPage.getPageNumber());
+
+            //response.put("totalClients", clientPage.TotalElements());
+            response.put("totalPages", clientPage.getTotalElements());
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
     //trouver un client par son id
     @GetMapping("/clients/{id}")
     @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING')")
@@ -129,7 +155,7 @@ public class ClientController {
         try {
 
             List<Object[]> response = clientCriteriaRepository.findAllSexeChart(clientPage, clientSearchCriteria);
-            System.out.println((response));
+            //System.out.println((response));
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
@@ -173,6 +199,25 @@ public class ClientController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+//-------->>>>>>>>
+
+    //--------->>>>>>>>>>>>
+
+    @GetMapping("/clients/modeleList")
+    @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING') or hasRole('ROLE_USER')")
+    public ResponseEntity<Long> motalt3tab(ClientPage clientPage, ClientSearchCriteria clientSearchCriteria) {
+        try {
+
+            Long response = clientCriteriaRepository.findAllModeleLong(clientPage, clientSearchCriteria);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
     @GetMapping("/clients/ptVente")
     @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING') or hasRole('ROLE_USER')")
     public ResponseEntity<List<Object[]>> motalt4(ClientPage clientPage, ClientSearchCriteria clientSearchCriteria) {
@@ -185,6 +230,11 @@ public class ClientController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
+
+
+
   /*  @GetMapping("/teeeest")
     @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING') or hasRole('ROLE_USER')")
     public HttpEntity<Long> teeeeest() {
