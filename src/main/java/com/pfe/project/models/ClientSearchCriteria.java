@@ -15,6 +15,15 @@ public class ClientSearchCriteria {
     private String ptVente;
     private  String Commerciale ;
     private int slm;
+    private String user;
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
+    }
 
     public String getstartDate() {
         return startDate;

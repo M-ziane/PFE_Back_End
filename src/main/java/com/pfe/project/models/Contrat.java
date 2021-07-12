@@ -19,6 +19,9 @@ public class Contrat {
     @JoinColumn(name = "client_ID")
     private Client clientA;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "kilometrage_ID")
+    private Kilometrage kilometrageC;
     //extra column
     @Column(name="modalitePaiement")
     private Boolean modalitePaiement;
@@ -45,6 +48,14 @@ public class Contrat {
 
     public void setNomVendeur(String nom_Vendeur) {
         this.nomVendeur = nom_Vendeur;
+    }
+
+    public Kilometrage getKilometrageC() {
+        return kilometrageC;
+    }
+
+    public void setKilometrageC(Kilometrage kilometrageC) {
+        this.kilometrageC = kilometrageC;
     }
 
     //NomVendur --> CCA

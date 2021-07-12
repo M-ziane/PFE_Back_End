@@ -1,5 +1,10 @@
 package com.pfe.project.controllers;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 
 import com.pfe.project.models.*;
@@ -148,7 +153,80 @@ public class ClientController {
     }
 
     //------------------
+    @GetMapping("/clients/predict")
+    @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING') or hasRole('ROLE_USER')")
+    public ResponseEntity<Map<String, Object>> predict(ClientPage clientPage, ClientSearchCriteria clientSearchCriteria) {
+        try {
+            List<Object[]> clients = new ArrayList<Object[]>();
+           // Pageable paging = PageRequest.of(clientPage.getPageNumber(), clientPage.getPageSize());
 
+            Page<Object[]> response1 = clientCriteriaRepository.predict(clientPage, clientSearchCriteria);
+            //System.out.println(clientSearchCriteria);
+
+
+            Date startDate = new Date();
+            startDate.setDate(01);
+            SimpleDateFormat dateFormat= new SimpleDateFormat("yyyy-MM-dd");
+            String dateOnly = dateFormat.format(startDate);
+            java.util.Date start = new SimpleDateFormat("yyyy-MM-dd").parse(dateOnly);
+
+//----
+            Date endDate = new Date();
+            endDate.setDate(30);
+            SimpleDateFormat dateFormatE= new SimpleDateFormat("yyyy-MM-dd");
+            String dateOnlyE = dateFormatE.format(endDate);
+            java.util.Date end = new SimpleDateFormat("yyyy-MM-dd").parse(dateOnlyE);
+
+            System.out.println("hrira slkt ");
+            clients = response1.getContent();
+            List<Object[]> clientsP = new ArrayList<>();
+            long totalElements = 0;
+            for(Object[] anObject : clients){
+                Object[] fields =  anObject;
+                System.out.println(fields[7]);
+                Date date1 = (Date) fields[7];
+                System.out.println(date1);
+
+                Date date2 = (Date) fields[8];
+                Long kilometrage = (Long) fields[9];
+
+                long diffInMillies = Math.abs(date1.getTime() - date2.getTime());
+                long tot = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+
+
+                long Dm = (tot*10000) / kilometrage;
+
+                long diffInMillie = Math.abs(end.getTime() - date1.getTime());
+                long a = TimeUnit.DAYS.convert(diffInMillie, TimeUnit.MILLISECONDS);
+
+                //long a =  ChronoUnit.MONTHS.between(end,date1) % Dm;
+                long D = a*Dm;
+
+                LocalDateTime ldt = LocalDateTime.from(date1.toInstant()).plusDays(D);
+                System.out.println(ldt);
+                Date pred = java.sql.Timestamp.valueOf(ldt);
+
+
+                if(start.compareTo(pred) *pred.compareTo(end) >= 0) {
+                    clientsP.add(anObject);
+                    totalElements ++;
+                }
+            }
+            System.out.println(clientsP);
+            //traitement 3la clients -->
+
+            Map<String, Object> response = new HashMap<>();
+
+            response.put("clients", clients);
+            response.put("currentPage", clientPage.getPageNumber());
+            response.put("totalPages", clientPage.getTotalElements());
+            //response.put("totalPages",totalElements);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
     @GetMapping("/clients/sexe")
     @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING') or hasRole('ROLE_USER')")
     public ResponseEntity<List<Object[]>> motalt(ClientPage clientPage, ClientSearchCriteria clientSearchCriteria) {
@@ -250,5 +328,13 @@ public class ClientController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }*/
+  public String printRow(Object[] row) {
+      StringBuilder s = new StringBuilder();
+      for (Object object : row) {
+          System.out.println(object);
+          s.append(object + "\n");
+      }
+      return s.toString();
+  }
 }
 

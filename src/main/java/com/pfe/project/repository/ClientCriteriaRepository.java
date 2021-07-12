@@ -10,9 +10,13 @@ import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
+import javax.persistence.metamodel.SingularAttribute;
 import java.sql.SQLOutput;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Repository
@@ -63,13 +67,16 @@ public class ClientCriteriaRepository {
             );
         }
         if(Objects.nonNull(employeeSearchCriteria.getstartDate())&&Objects.nonNull(employeeSearchCriteria.getEndDate())){
-            java.util.Date start = new SimpleDateFormat("yyyy-MM-dd").parse(employeeSearchCriteria.getstartDate());
+
+            java.util.Date start = new SimpleDateFormat("dd/MM/yyyy").parse(employeeSearchCriteria.getstartDate());
+            System.out.println(start);
             Date end =new SimpleDateFormat("yyyy-MM-dd").parse(employeeSearchCriteria.getEndDate());
+            System.out.println(end);
             conditions.add(
                     criteriaBuilder.between(details.get("dateComptabilisation"), start,end)
             );
         }
-        if (Objects.nonNull(employeeSearchCriteria.isMdt())) {
+        if(Objects.nonNull(employeeSearchCriteria.isMdt())) {
             System.out.println(employeeSearchCriteria.isMdt());
             conditions.add(
                     criteriaBuilder.equal(details.get("modalitePaiement"),employeeSearchCriteria.isMdt())
@@ -87,9 +94,9 @@ public class ClientCriteriaRepository {
                     criteriaBuilder.equal(details.get("nomVendeur"),employeeSearchCriteria.getCommerciale())
             );
         }
-        if(employeeSearchCriteria.getSlm()==1){
+        if(Objects.nonNull(employeeSearchCriteria.getUser())){
             conditions.add(
-                    criteriaBuilder.equal(details.get("nomVendeur"),"Houda Ennachet")
+                    criteriaBuilder.equal(details.get("nomVendeur"),employeeSearchCriteria.getUser())
             );
             System.out.println("slm ?");
         }
@@ -130,45 +137,82 @@ public class ClientCriteriaRepository {
         Root<Client> root = criteriaQuerytest.from(Client.class);
         Join<Client, Contrat> details = root.join("contrat");
         Join<Contrat, Voiture> voiture = details.join("voitureA");
-        criteriaQuerytest.multiselect(root.get("name"),root.get("typologie"),voiture.get("marque"),voiture.get("modele"),details.get("pointVente"), details.get("nomVendeur"),details.get("dateComptabilisation"));
+/***/
+        CriteriaQuery<Long> countQuery1 = criteriaBuilder.createQuery(Long.class);
+        Root<Client> entity1_ = countQuery1.from(Client.class);
+        entity1_.alias("entitySub");
+        countQuery1.select(criteriaBuilder.count(entity1_));
+/***/
+        criteriaQuerytest.multiselect(root.get("id"),root.get("name"),root.get("typologie"),voiture.get("marque"),voiture.get("modele"),details.get("pointVente"), details.get("nomVendeur"),details.get("dateComptabilisation"));
 
         Predicate restriction = this.getPredicate(employeeSearchCriteria,root);  //where
         if (restriction != null) {
             criteriaQuerytest.where(restriction);
         }
-        //paging test
-            //nbr client , nbr page ;
-        CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
-        Root<Client> entity_ = countQuery.from(Client.class);
-        entity_.alias("entitySub");
-        countQuery.select(criteriaBuilder.count(entity_));
-        if (restriction != null) {
-            countQuery.where(restriction); // Copy restrictions
+        //******************paging test
+        Predicate restriction1 = this.getPredicate(employeeSearchCriteria,entity1_);
+        if (restriction1 != null) {
+            countQuery1.where(restriction1); // Copy restrictions
+            //System.out.println("restriction1:"+restriction1);
         }
-        Long totalCount=entityManager.createQuery(countQuery).getSingleResult();
+        Long totalCount=entityManager.createQuery(countQuery1).getSingleResult();
+        System.out.println("total count :"+totalCount);
         Long totalPages = totalCount/clientPage.getPageSize();
         clientPage.setTotalElements(totalPages);
-
-        //criteriaQuerytest.setFirstResult(clientPage.getPageNumber() * clientPage.getPageSize());
-//typedQuery.setMaxResults(clientPage.getPageSize());
-        //test end
-        List<Object[]> result =  entityManager.createQuery(criteriaQuerytest).getResultList();
-        //
-        //***
+        System.out.println("total pages :" +totalPages);
+        //List<Object[]> result =  entityManager.createQuery(criteriaQuerytest).getResultList();
 
         List<Object[]> results =  entityManager.createQuery(criteriaQuerytest).setFirstResult(clientPage.getPageNumber() * clientPage.getPageSize()).setMaxResults(clientPage.getPageSize()).getResultList();
-        System.out.println(results);
-
         Pageable pageable = getPageable(clientPage);
 
         Page<Object[]> PageC= PageableExecutionUtils.getPage(results,pageable, () -> totalCount);
-        System.out.println("slm");
         System.out.println(PageC);
-        System.out.println(PageC.getClass());
         return PageC ;
         //List<Client> results = criteriaQuerytest.getResultList();
     }
+    //-----------Test Predict---------------
+    public Page<Object[]> predict(ClientPage clientPage,
+                                ClientSearchCriteria employeeSearchCriteria) throws ParseException {
+        // nzid kilometrage o date prise f multiselect
 
+        CriteriaQuery<Object[]> criteriaQuerytest = criteriaBuilder.createQuery(Object[].class);
+        Root<Client> root = criteriaQuerytest.from(Client.class);
+        Join<Client, Contrat> details = root.join("contrat");
+        Join<Contrat, Voiture> voiture = details.join("voitureA");
+        Join<Contrat, Kilometrage> kilometrage = details.join("kilometrageC");
+        /***/
+        CriteriaQuery<Long> countQuery1 = criteriaBuilder.createQuery(Long.class);
+        Root<Client> entity1_ = countQuery1.from(Client.class);
+        entity1_.alias("entitySub");
+        countQuery1.select(criteriaBuilder.count(entity1_));
+/***/
+        criteriaQuerytest.multiselect(root.get("id"),root.get("name"),root.get("typologie"),voiture.get("marque"),voiture.get("modele"),details.get("pointVente"), details.get("nomVendeur"),details.get("dateComptabilisation"),kilometrage.get("datePrise"),kilometrage.get("kilometrage"));
+
+        Predicate restriction = this.getPredicate(employeeSearchCriteria,root);  //where
+        if (restriction != null) {
+            criteriaQuerytest.where(restriction);
+        }
+        //******************paging test
+        Predicate restriction1 = this.getPredicate(employeeSearchCriteria,entity1_);
+        if (restriction1 != null) {
+            countQuery1.where(restriction1); // Copy restrictions
+            //System.out.println("restriction1:"+restriction1);
+        }
+        Long totalCount=entityManager.createQuery(countQuery1).getSingleResult();
+        System.out.println("total count :"+totalCount);
+        Long totalPages = totalCount/clientPage.getPageSize();
+        clientPage.setTotalElements(totalPages);
+        System.out.println("total pages :" +totalPages);
+        //List<Object[]> result =  entityManager.createQuery(criteriaQuerytest).getResultList();
+
+        List<Object[]> results =  entityManager.createQuery(criteriaQuerytest).setFirstResult(clientPage.getPageNumber() * clientPage.getPageSize()).setMaxResults(clientPage.getPageSize()).getResultList();
+        Pageable pageable = getPageable(clientPage);
+
+        Page<Object[]> PageC= PageableExecutionUtils.getPage(results,pageable, () -> totalCount);
+        System.out.println(PageC);
+        return PageC ;
+        //List<Client> results = criteriaQuerytest.getResultList();
+    }
         //----------------------testChart----
     public List<Long> findAllFilteredChart(ClientPage employeePage,
                                         ClientSearchCriteria employeeSearchCriteria) throws ParseException {
@@ -260,17 +304,26 @@ public class ClientCriteriaRepository {
         }
         //à régler
         if(Objects.nonNull(employeeSearchCriteria.getstartDate())&&Objects.nonNull(employeeSearchCriteria.getEndDate())){
-            java.util.Date start = new SimpleDateFormat("yyyy-MM-dd").parse(employeeSearchCriteria.getstartDate());
-            Date end =new SimpleDateFormat("yyyy-MM-dd").parse(employeeSearchCriteria.getEndDate());
+
+            LocalDate dates = LocalDate.parse(employeeSearchCriteria.getstartDate());
+            java.util.Date start =java.sql.Date.valueOf(dates);
+            LocalDate dateE = LocalDate.parse(employeeSearchCriteria.getEndDate());
+            java.util.Date end =java.sql.Date.valueOf(dateE);
             predicates.add(
                     criteriaBuilder.between(details.get("dateComptabilisation"), start,end)
             );
+
         }
         if(employeeSearchCriteria.getSlm() == 1){
             predicates.add(
                     criteriaBuilder.equal(details.get("nomVendeur"),"AKKARAMOU")
             );
-        }
+        }/*
+        if(Objects.nonNull(employeeSearchCriteria.getPredict())){
+            predicates.add(criteriaBuilder.between(details.get("dateComptabilisation"), startDate,endDate));
+
+        }*/
+        //System.out.println("slm"+predicates.toArray(new Predicate[] {}).getClass());
         return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
     }
 
@@ -377,8 +430,29 @@ public class ClientCriteriaRepository {
         System.out.println(result);
         return result ;
     }
-    public Long findAllModeleLong(ClientPage employeePage,
+
+    public List<Object[]> findAllPtVenteChart(ClientPage clientPage,
                                              ClientSearchCriteria employeeSearchCriteria) throws ParseException {
+
+
+
+        CriteriaQuery<Object[]> criteriaQuerytest = criteriaBuilder.createQuery(Object[].class);
+        Root<Client> root = criteriaQuerytest.from(Client.class);
+        Join<Client, Contrat> details = root.join("contrat");
+        criteriaQuerytest.multiselect(details.get("pointVente"), criteriaBuilder.count(root));
+        criteriaQuerytest.groupBy(details.get("pointVente"));
+
+        Predicate restriction = this.getPredicate(employeeSearchCriteria,root);  //where
+        if (restriction != null) {
+            criteriaQuerytest.where(restriction);
+        }
+        List<Object[]> result =  entityManager.createQuery(criteriaQuerytest).getResultList();
+        System.out.println(result);
+        return result ;
+    }
+    //--------------------------
+    public Long findAllModeleLong(ClientPage employeePage,
+                                  ClientSearchCriteria employeeSearchCriteria) throws ParseException {
 
         CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
         Root<Voiture> entity_ = countQuery.from(Voiture.class);
@@ -400,7 +474,7 @@ public class ClientCriteriaRepository {
     }
 
     private Predicate getPredicateV(ClientSearchCriteria employeeSearchCriteria,
-                                   Root<Voiture> employeeRoot) throws ParseException {
+                                    Root<Voiture> employeeRoot) throws ParseException {
 
         Join<Client, Contrat> details = employeeRoot.join("contrat");
         Join<Contrat, Voiture> voiture = details.join("voitureA");
@@ -458,27 +532,5 @@ public class ClientCriteriaRepository {
         }
         return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
     }
-
-
-    public List<Object[]> findAllPtVenteChart(ClientPage clientPage,
-                                             ClientSearchCriteria employeeSearchCriteria) throws ParseException {
-
-
-
-        CriteriaQuery<Object[]> criteriaQuerytest = criteriaBuilder.createQuery(Object[].class);
-        Root<Client> root = criteriaQuerytest.from(Client.class);
-        Join<Client, Contrat> details = root.join("contrat");
-        criteriaQuerytest.multiselect(details.get("pointVente"), criteriaBuilder.count(root));
-        criteriaQuerytest.groupBy(details.get("pointVente"));
-
-        Predicate restriction = this.getPredicate(employeeSearchCriteria,root);  //where
-        if (restriction != null) {
-            criteriaQuerytest.where(restriction);
-        }
-        List<Object[]> result =  entityManager.createQuery(criteriaQuerytest).getResultList();
-        System.out.println(result);
-        return result ;
-    }
-    //--------------------------
 
 }
