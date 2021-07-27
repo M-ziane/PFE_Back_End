@@ -106,20 +106,26 @@ public class ClientCriteriaRepository {
                 .where(conditions.toArray(new Predicate[] {}))
         );
  //***
-        CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
-        Root<Client> entity_ = countQuery.from(Client.class);
-        entity_.alias("entitySub");
-        countQuery.select(criteriaBuilder.count(entity_));
-        Predicate restriction = this.getPredicate(employeeSearchCriteria,entity_);
-
-        if (restriction != null) {
-            countQuery.where(restriction); // Copy restrictions
+        CriteriaQuery<Long> countQuery1 = criteriaBuilder.createQuery(Long.class);
+        Root<Client> entity1_ = countQuery1.from(Client.class);
+        entity1_.alias("entitySub");
+        countQuery1.select(criteriaBuilder.count(entity1_));
+/*
+        Predicate restriction1 = this.getPredicate(employeeSearchCriteria,entity1_);
+        if (restriction1 != null) {
+            countQuery1.where(restriction1); // Copy restrictions
+            System.out.println("restriction1:"+restriction1);
+        }*/
+        Predicate pred = this.getPredicate(employeeSearchCriteria,entity1_);
+        if (pred != null) {
+            countQuery1.where(pred); // Copy restrictions
         }
-        System.out.println(restriction);
-        Long totalCount=entityManager.createQuery(countQuery).getSingleResult();
-        //System.out.println(totalCount);
+        Long totalCount=entityManager.createQuery(countQuery1).getSingleResult();
+        System.out.println("toootaaal count :"+totalCount);
         Long totalPages = totalCount/employeePage.getPageSize();
         employeePage.setTotalElements(totalPages);
+        System.out.println("tooootaaaal pages :" +totalPages);
+
         typedQuery.setFirstResult(employeePage.getPageNumber() * employeePage.getPageSize());
         typedQuery.setMaxResults(employeePage.getPageSize());
 
@@ -170,8 +176,16 @@ public class ClientCriteriaRepository {
         return PageC ;
         //List<Client> results = criteriaQuerytest.getResultList();
     }
+    /*-----------
+    public List<Predicted> getAllPredicted(ClientPage clientPage,
+                                           ClientSearchCriteria employeeSearchCriteria)throws ParseException {
+        List<Predicted> predicteds = predictedRepository.findAll(clientPage);
+
+
+        return result ;
+    }*/
     //-----------Test Predict---------------
-    public Page<Object[]> predict(ClientPage clientPage,
+    public List<Object[]> predict(ClientPage clientPage,
                                 ClientSearchCriteria employeeSearchCriteria) throws ParseException {
         // nzid kilometrage o date prise f multiselect
 
@@ -179,38 +193,41 @@ public class ClientCriteriaRepository {
         Root<Client> root = criteriaQuerytest.from(Client.class);
         Join<Client, Contrat> details = root.join("contrat");
         Join<Contrat, Voiture> voiture = details.join("voitureA");
-        Join<Contrat, Kilometrage> kilometrage = details.join("kilometrageC");
+        //Join<Contrat, Kilometrage> kilometrage = details.join("kilometrageC");
         /***/
         CriteriaQuery<Long> countQuery1 = criteriaBuilder.createQuery(Long.class);
         Root<Client> entity1_ = countQuery1.from(Client.class);
         entity1_.alias("entitySub");
         countQuery1.select(criteriaBuilder.count(entity1_));
 /***/
-        criteriaQuerytest.multiselect(root.get("id"),root.get("name"),root.get("typologie"),voiture.get("marque"),voiture.get("modele"),details.get("pointVente"), details.get("nomVendeur"),details.get("dateComptabilisation"),kilometrage.get("datePrise"),kilometrage.get("kilometrage"));
-
+        criteriaQuerytest.multiselect(root.get("id"),root.get("name"),root.get("typologie"),voiture.get("marque"),voiture.get("modele"),details.get("pointVente"), details.get("nomVendeur"),details.get("dateComptabilisation"),voiture.get("immatriculation"));
+        //,kilometrage.get("kilometrage")
         Predicate restriction = this.getPredicate(employeeSearchCriteria,root);  //where
         if (restriction != null) {
             criteriaQuerytest.where(restriction);
         }
+        /*
         //******************paging test
         Predicate restriction1 = this.getPredicate(employeeSearchCriteria,entity1_);
         if (restriction1 != null) {
             countQuery1.where(restriction1); // Copy restrictions
             //System.out.println("restriction1:"+restriction1);
-        }
+        }*/
         Long totalCount=entityManager.createQuery(countQuery1).getSingleResult();
         System.out.println("total count :"+totalCount);
         Long totalPages = totalCount/clientPage.getPageSize();
         clientPage.setTotalElements(totalPages);
         System.out.println("total pages :" +totalPages);
         //List<Object[]> result =  entityManager.createQuery(criteriaQuerytest).getResultList();
-
-        List<Object[]> results =  entityManager.createQuery(criteriaQuerytest).setFirstResult(clientPage.getPageNumber() * clientPage.getPageSize()).setMaxResults(clientPage.getPageSize()).getResultList();
+        List<Object[]> results = entityManager.createQuery(criteriaQuerytest).getResultList();
+        //System.out.println("results predict :"+results);
+        //List<Object[]> results =  entityManager.createQuery(criteriaQuerytest).setFirstResult(clientPage.getPageNumber() * clientPage.getPageSize()).setMaxResults(clientPage.getPageSize()).getResultList();
         Pageable pageable = getPageable(clientPage);
 
-        Page<Object[]> PageC= PageableExecutionUtils.getPage(results,pageable, () -> totalCount);
-        System.out.println(PageC);
-        return PageC ;
+        //Page<Object[]> PageC= PageableExecutionUtils.getPage(results,pageable, () -> totalCount);
+        //System.out.println(PageC);
+        return results;
+        //return PageC ;
         //List<Client> results = criteriaQuerytest.getResultList();
     }
         //----------------------testChart----
@@ -263,7 +280,7 @@ public class ClientCriteriaRepository {
 
         Join<Client, Contrat> details = employeeRoot.join("contrat");
         Join<Contrat, Voiture> voiture = details.join("voitureA");
-
+        //Join<Contrat, Kilometrage> kilometrage = details.join("kilometrageC");
         List<Predicate> predicates = new ArrayList<>();
         if(Objects.nonNull(employeeSearchCriteria.getMarque())){
             predicates.add(criteriaBuilder.equal(voiture.get("marque"), employeeSearchCriteria.getMarque()));
@@ -318,6 +335,19 @@ public class ClientCriteriaRepository {
             predicates.add(
                     criteriaBuilder.equal(details.get("nomVendeur"),"AKKARAMOU")
             );
+        }
+        /*if(Objects.nonNull(employeeSearchCriteria.getKilometrage())&&Objects.nonNull(employeeSearchCriteria.getKilometrage2())){
+            System.out.println("dkhol l kilometrage");
+            predicates.add(
+                    criteriaBuilder.between(kilometrage.get("kilometrage"),employeeSearchCriteria.getKilometrage(),employeeSearchCriteria.getKilometrage2())
+            );
+        }*/
+        //"start": "webpack-dev-server --inline --content-base . --history-api-fallback" add to webpack-dev-server
+        if(Objects.nonNull(employeeSearchCriteria.getUser())){
+            predicates.add(
+                    criteriaBuilder.equal(details.get("nomVendeur"),employeeSearchCriteria.getUser())
+            );
+            System.out.println("user ?");
         }/*
         if(Objects.nonNull(employeeSearchCriteria.getPredict())){
             predicates.add(criteriaBuilder.between(details.get("dateComptabilisation"), startDate,endDate));

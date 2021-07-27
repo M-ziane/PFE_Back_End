@@ -58,15 +58,6 @@ public class Contrat {
         this.kilometrageC = kilometrageC;
     }
 
-    //NomVendur --> CCA
-/*
-@ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "CC_ID")
-    private CC CCA;
- public CC getCC(){return cc;}
- punlic CC setCC(CC cc ) { this.CCA = cc;}
-
- */
     public Long getId() {
         return id;
     }

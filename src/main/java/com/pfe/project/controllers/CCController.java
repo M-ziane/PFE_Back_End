@@ -193,8 +193,6 @@ public class CCController {
             _cc.setSucc(cc.getSucc());
             _cc.setNumEquipe(cc.getNumEquipe());
             _cc.setChef(cc.getChef());
-
-
             return new ResponseEntity<>(ccRepository.save(_cc), HttpStatus.OK);
         } else {
 
@@ -202,5 +200,21 @@ public class CCController {
         }
     }
 
+    @GetMapping("/cc/ax")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('USER') or hasRole('CC') or hasRole('MARKETING')")
+    public ResponseEntity<String> getCCByname(@RequestParam(defaultValue = "6") String name) {
+        CC cc = ccRepository.findByNom(name);
+        //System.out.println(cc);
+        String ax =cc.getAx();
+        String succ =cc.getSucc();
+        if(cc.getChef()) return new ResponseEntity<>(succ, HttpStatus.OK);
+        else if(cc.getAx()!=null){
+            return new ResponseEntity<>(ax, HttpStatus.OK);
+        }
+        else {
+
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 
 }

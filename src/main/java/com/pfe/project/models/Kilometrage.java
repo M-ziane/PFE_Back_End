@@ -12,7 +12,7 @@ import static javax.persistence.GenerationType.AUTO;
 public class Kilometrage {
 
     @Id
-    @GeneratedValue(strategy = AUTO)
+    //@GeneratedValue(strategy = AUTO)
     private long id;
     @Size(max = 20)
     @Column(name = "immatriculation")

@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/test")
 public class TestController {
 	@GetMapping("/all")
-	public void allAccess() {
+	public String allAccess() {
 		System.out.println("public");
-		//return "Public Content.";
+		return "Public Content.";
 	}
 
 	@GetMapping("/user")
@@ -35,5 +35,12 @@ public class TestController {
 	public String adminAccess() {
 		System.out.println("ana marketing");
 		return "Marketing Board.";
+	}
+
+
+	@GetMapping("/chart")
+	public String portalReactHandler() {
+
+		return "forward:./index.html";
 	}
 }

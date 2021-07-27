@@ -16,6 +16,24 @@ public class ClientSearchCriteria {
     private  String Commerciale ;
     private int slm;
     private String user;
+    private Long kilometrage;
+    private Long kilometrage2;
+
+    public Long getKilometrage2() {
+        return kilometrage2;
+    }
+
+    public void setKilometrage2(Long kilometrage2) {
+        this.kilometrage2 = kilometrage2;
+    }
+
+    public Long getKilometrage() {
+        return kilometrage;
+    }
+
+    public void setKilometrage(Long kilometrage) {
+        this.kilometrage = kilometrage;
+    }
 
     public String getUser() {
         return user;

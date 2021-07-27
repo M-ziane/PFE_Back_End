@@ -15,6 +15,7 @@ public interface CCRepository extends JpaRepository< CC , Integer> {
     //Page<CC> findByNomContaining(String name , Pageable pageable);
     Page<CC> findByAxContaining(String ax , Pageable pageable);
     Page<CC> findByNom(String nom ,Pageable pageable);
+    CC findByNom(String nom);
     Page<CC> findBySuccAndNom(String succ,String nom,Pageable pageable );
     Optional<CC> findById(Long id);
     Page<CC> findBySucc(String succ,Pageable pageable);
