@@ -3,6 +3,7 @@ package com.pfe.project;
 import org.springframework.boot.SpringApplication;
 
 @org.springframework.boot.autoconfigure.SpringBootApplication
+//@SpringBootApplication
 public class SpringBootApplication {
 
 	public static void main(String[] args) {

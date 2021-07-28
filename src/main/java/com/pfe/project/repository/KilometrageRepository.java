@@ -12,5 +12,5 @@ import java.util.List;
 public interface KilometrageRepository extends JpaRepository<Kilometrage, Long>, JpaSpecificationExecutor {
     Long countByKilometrage(String kilometrage);
     List<Kilometrage> findByImmatriculation(String immatriculation);
-
+    Kilometrage findTopByImmatriculation(String immatriculation);
 }

@@ -424,13 +424,28 @@ public class ClientController {
     @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING') or hasRole('ROLE_USER')")
     public ResponseEntity<Map<String, Object>> pred(ClientPage clientPage, ClientSearchCriteria clientSearchCriteria) {
         try {
-            List<Object[]> clients = new ArrayList<Object[]>();
+            List<Client> clients = new ArrayList<Client>();
             Pageable paging = PageRequest.of(clientPage.getPageNumber(), clientPage.getPageSize());
             List<Predicted> predicteds = predictedRepository.findAll();
+            List<Voiture> voitures = new ArrayList<Voiture>();
+            //List<Client> clients = new ArrayList<Client>();
+List<Kilometrage> kilometrages = new ArrayList<Kilometrage>();
+            for(Predicted predicted : predicteds){
+                Client client = new Client();
+                //Kilometrage kilometrage = new Kilometrage();
+                client = clientRepository.findTopByName(predicted.getNom());
+                //clients.add(client);
+                Voiture voiture = voitureRepository.findTopById(client.getId());
+                Kilometrage kilometrage = kilometrageRepository.findTopByImmatriculation(voiture.getImmatriculation());
+                kilometrages.add(kilometrage);
+            }
+
             System.out.println(predicteds.size());
             Map<String, Object> response = new HashMap<>();
             System.out.println(predicteds.get(1).getId() +": date :" +predicteds.get(1).getDateComptabilisation());
-            response.put("clients", predicteds);
+            //response.put("clients", predicteds);
+            //response.put("clients", clients);
+            response.put("clients", kilometrages);
             response.put("currentPage", clientPage.getPageNumber());
             response.put("totalPages", clientPage.getTotalElements());
             //response.put("totalPages",totalElements);

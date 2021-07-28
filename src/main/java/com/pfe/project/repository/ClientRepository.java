@@ -22,6 +22,7 @@ public interface ClientRepository extends JpaRepository<Client, Long> , JpaSpeci
     Page<Client> findBySexe(Boolean sexe,Pageable pageable);
     Page<Client> findByContratIn(List<Contrat> contrats , Pageable pageable);
     Page<Client> findBySexeAndContratIn(boolean sexe , List<Contrat> contrats , Pageable pageable);*/
+    Client findTopByName(String name);
     Long countBySexe(String sexe);
     Long countByContratIn(List<Contrat> modele);
     //Long countBySexe(String sexe);

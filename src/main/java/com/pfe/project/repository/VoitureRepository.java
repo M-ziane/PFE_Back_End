@@ -14,4 +14,5 @@ public interface VoitureRepository  extends JpaRepository<Voiture, Long>, JpaSpe
     List<Voiture> findByModele(String modele) ;
     //TODO
     List<Voiture> findByImmatriculation(String immatriculation);
+    Voiture findTopById(Long id);
 }
