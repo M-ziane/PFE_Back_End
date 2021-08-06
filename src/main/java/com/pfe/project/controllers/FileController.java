@@ -1,12 +1,15 @@
 package com.pfe.project.controllers;
-import com.pfe.project.models.Client;
-import com.pfe.project.models.Contrat;
-import com.pfe.project.models.Kilometrage;
-import com.pfe.project.models.Voiture;
+import com.pfe.project.models.*;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
+
+
 import com.pfe.project.repository.ClientRepository;
 import com.pfe.project.repository.ContratRepository;
 import com.pfe.project.repository.KilometrageRepository;
 import com.pfe.project.repository.VoitureRepository;
+import com.pfe.project.service.ExcelService;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -16,11 +19,14 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStream;
 import java.sql.SQLOutput;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.LongAdder;
@@ -558,6 +564,20 @@ public ArrayList<Map<String,String>> excelImportK(@RequestParam(value = "excelFi
         }
 //return client
         return map;
+    }
+
+    @Autowired
+    ExcelService fileService;
+
+    @GetMapping("/download")
+    public ResponseEntity<Resource> getFile(ClientSearchCriteria clientSearchCriteria) throws ParseException {
+        String filename = "tutorials.xlsx";
+        InputStreamResource file = new InputStreamResource(fileService.load(clientSearchCriteria));
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+                .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
+                .body(file);
     }
 }
 

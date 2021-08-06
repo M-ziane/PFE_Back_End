@@ -25,5 +25,6 @@ public interface ClientRepository extends JpaRepository<Client, Long> , JpaSpeci
     Client findTopByName(String name);
     Long countBySexe(String sexe);
     Long countByContratIn(List<Contrat> modele);
+    //Client findById(long id);
     //Long countBySexe(String sexe);
 }

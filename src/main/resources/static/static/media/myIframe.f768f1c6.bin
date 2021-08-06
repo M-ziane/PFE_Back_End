@@ -1,0 +1,14 @@
+import * as React from 'react';
+
+
+const MyIframe = (props) => {
+  
+
+         return (
+           <div style={{display: 'none'}}>
+               <iframe src={this.props.iframeSrc} />
+           </div>
+         );
+
+}
+export default MyIframe;

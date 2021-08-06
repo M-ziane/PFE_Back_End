@@ -107,6 +107,68 @@ public class ClientController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    //-------------
+    @GetMapping("/clients/lbs")
+    @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING') or hasRole('ROLE_USER')")
+    public ResponseEntity<List<Long>> slmlbshmd(ClientPage clientPage, ClientSearchCriteria clientSearchCriteria) {
+        try {
+            List<Kilometrage> kilometrages = kilometrageRepository.findAll();
+            List<Voiture> voitures = new ArrayList<Voiture>();
+            for (Kilometrage kilometrage:kilometrages) {
+                Optional<Voiture> voitureData = voitureRepository.findById(kilometrage.getId());
+                if (voitureData.isPresent()) {
+                    Voiture _voiture = voitureData.get();
+                    _voiture.setKilometrage(kilometrage.getKilometrage());
+                    System.out.println("imma : "+_voiture.getImmatriculation());
+                    voitures.add(_voiture);
+                }
+
+            }
+            voitureRepository.saveAll(voitures);
+            List<Long> response = clientCriteriaRepository.findAllFilteredChart(clientPage, clientSearchCriteria);
+            //return new ResponseEntity<>(clientRepository.save(_client), HttpStatus.OK);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    //--------------Null kilo
+    @GetMapping("/clients/kilon")
+    @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING') or hasRole('ROLE_USER')")
+    public ResponseEntity<Map<String, Object>> kilon(ClientPage clientPage, ClientSearchCriteria clientSearchCriteria) {
+        try {
+            List<Client> clients = new ArrayList<Client>();
+            Pageable paging = PageRequest.of(clientPage.getPageNumber(), clientPage.getPageSize());
+            //Page<Client> clients = new ArrayList<Client>();
+            List<Kilometrage> kilometrages = kilometrageRepository.findByKilometrageIsNull();
+            for (Kilometrage kilometrage :kilometrages){
+                    Optional<Client> client = clientRepository.findById(kilometrage.getId());
+                    System.out.println(client);
+                    if(client.isPresent()){
+                    System.out.println(client.get());
+                    clients.add(client.get());}
+            }
+            System.out.println(clients.size());
+            //Page<Object[]> response1 = clientCriteriaRepository.test1(clientPage, clientSearchCriteria);
+            //System.out.println(clientSearchCriteria);
+            //clients = response1.getContent();
+            Map<String, Object> response = new HashMap<>();
+
+            response.put("clients", clients);
+            response.put("currentPage", clientPage.getPageNumber());
+
+            //response.put("totalClients", clientPage.TotalElements());
+            response.put("totalPages", clientPage.getTotalElements());
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
     //trouver un client par son id
     @GetMapping("/clients/{id}")
     @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING')")
@@ -419,33 +481,25 @@ public class ClientController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    //'----------------------------------
+    //'--------------Optimize--------------------
     @GetMapping("/clients/p")
     @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING') or hasRole('ROLE_USER')")
     public ResponseEntity<Map<String, Object>> pred(ClientPage clientPage, ClientSearchCriteria clientSearchCriteria) {
         try {
             List<Client> clients = new ArrayList<Client>();
             Pageable paging = PageRequest.of(clientPage.getPageNumber(), clientPage.getPageSize());
-            List<Predicted> predicteds = predictedRepository.findAll();
-            List<Voiture> voitures = new ArrayList<Voiture>();
-            //List<Client> clients = new ArrayList<Client>();
-List<Kilometrage> kilometrages = new ArrayList<Kilometrage>();
-            for(Predicted predicted : predicteds){
-                Client client = new Client();
-                //Kilometrage kilometrage = new Kilometrage();
-                client = clientRepository.findTopByName(predicted.getNom());
-                //clients.add(client);
-                Voiture voiture = voitureRepository.findTopById(client.getId());
-                Kilometrage kilometrage = kilometrageRepository.findTopByImmatriculation(voiture.getImmatriculation());
-                kilometrages.add(kilometrage);
-            }
-
-            System.out.println(predicteds.size());
+            List<Predicted> predicteds = new ArrayList<Predicted>();
+            Page<Predicted>     slm   =predictedRepository.findAll(paging);
+            predicteds = slm.getContent();
+            System.out.println("slm"+slm.getSize());
+            System.out.println("predicteds"+predicteds.size());
+            System.out.println("total pages ///"+clientPage.getTotalElements());
             Map<String, Object> response = new HashMap<>();
             System.out.println(predicteds.get(1).getId() +": date :" +predicteds.get(1).getDateComptabilisation());
-            //response.put("clients", predicteds);
-            //response.put("clients", clients);
-            response.put("clients", kilometrages);
+
+            clientPage.setTotalElements(predictedRepository.count());
+
+            response.put("clients", predicteds);
             response.put("currentPage", clientPage.getPageNumber());
             response.put("totalPages", clientPage.getTotalElements());
             //response.put("totalPages",totalElements);
@@ -523,7 +577,19 @@ List<Kilometrage> kilometrages = new ArrayList<Kilometrage>();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    @GetMapping("/clients/modalite")
+    @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING') or hasRole('ROLE_USER')")
+    public ResponseEntity<List<Object[]>> modalite(ClientPage clientPage, ClientSearchCriteria clientSearchCriteria) {
+        try {
 
+            List<Object[]> response = clientCriteriaRepository.findAllModaliteChart(clientPage, clientSearchCriteria);
+            //System.out.println((response));
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @GetMapping("/clients/ptVente")
     @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING') or hasRole('ROLE_USER')")

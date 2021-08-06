@@ -13,4 +13,5 @@ public interface KilometrageRepository extends JpaRepository<Kilometrage, Long>,
     Long countByKilometrage(String kilometrage);
     List<Kilometrage> findByImmatriculation(String immatriculation);
     Kilometrage findTopByImmatriculation(String immatriculation);
+    List<Kilometrage> findByKilometrageIsNull();
 }

@@ -30,6 +30,7 @@ public class Contrat {
     private String pointVente;
 
 
+
     @Column (name="date_comptabilisation")
     private java.util.Date dateComptabilisation;
    /*@Column (name="date_comptabilisation")

@@ -12,6 +12,16 @@ public class Voiture{
     private String marque;
     private String modele;
     private String immatriculation;
+    @Column(name="kilometrage")
+    private Long kilometrage;
+
+    public Long getKilometrage() {
+        return kilometrage;
+    }
+
+    public void setKilometrage(Long kilometrage) {
+        this.kilometrage = kilometrage;
+    }
     //private long km;
 
 @OneToMany(mappedBy ="voitureA")

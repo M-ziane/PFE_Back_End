@@ -176,6 +176,28 @@ public class ClientCriteriaRepository {
         return PageC ;
         //List<Client> results = criteriaQuerytest.getResultList();
     }
+    //------Excel ----------
+    public List<Object[]> Excela(ClientSearchCriteria employeeSearchCriteria) throws ParseException {
+        CriteriaQuery<Object[]> criteriaQuerytest = criteriaBuilder.createQuery(Object[].class);
+        Root<Client> root = criteriaQuerytest.from(Client.class);
+        Join<Client, Contrat> details = root.join("contrat");
+        Join<Contrat, Voiture> voiture = details.join("voitureA");
+      /*  CriteriaQuery<Long> countQuery1 = criteriaBuilder.createQuery(Long.class);
+        Root<Client> entity1_ = countQuery1.from(Client.class);
+        entity1_.alias("entitySub");
+        countQuery1.select(criteriaBuilder.count(entity1_));
+        */
+        criteriaQuerytest.multiselect(root.get("id"),root.get("name"),root.get("typologie"),voiture.get("marque"),voiture.get("modele"),details.get("pointVente"), details.get("nomVendeur"),details.get("dateComptabilisation"),voiture.get("immatriculation"),details.get("dpt"),root.get("num_tel1"),root.get("num_tel2"),root.get("num_tel3"),root.get("email"),root.get("ville"),root.get("codePostal"),root.get("adresse"),root.get("code"));
+        Predicate restriction = this.getPredicate(employeeSearchCriteria,root);  //where
+        if (restriction != null) {
+            criteriaQuerytest.where(restriction);
+        }
+        List<Object[]> results = entityManager.createQuery(criteriaQuerytest).getResultList();
+
+        return results;
+    }
+    // cree query b filters    ->   file service.loa(criteria)  -> download file
+    //----------
     /*-----------
     public List<Predicted> getAllPredicted(ClientPage clientPage,
                                            ClientSearchCriteria employeeSearchCriteria)throws ParseException {
@@ -329,19 +351,23 @@ public class ClientCriteriaRepository {
             predicates.add(
                     criteriaBuilder.between(details.get("dateComptabilisation"), start,end)
             );
-
+            /*if(Objects.nonNull(employeeSearchCriteria.getKilometrage())&&Objects.nonNull(employeeSearchCriteria.getKilometrage2())) {
+                predicates.add(
+                        criteriaBuilder.between(kilometrage.get("kilometrage"), employeeSearchCriteria.getKilometrage(),employeeSearchCriteria.getKilometrage2())
+                );
+            }*/
         }
         if(employeeSearchCriteria.getSlm() == 1){
             predicates.add(
                     criteriaBuilder.equal(details.get("nomVendeur"),"AKKARAMOU")
             );
         }
-        /*if(Objects.nonNull(employeeSearchCriteria.getKilometrage())&&Objects.nonNull(employeeSearchCriteria.getKilometrage2())){
+        if(Objects.nonNull(employeeSearchCriteria.getKilometrage())&&Objects.nonNull(employeeSearchCriteria.getKilometrage2())){
             System.out.println("dkhol l kilometrage");
             predicates.add(
-                    criteriaBuilder.between(kilometrage.get("kilometrage"),employeeSearchCriteria.getKilometrage(),employeeSearchCriteria.getKilometrage2())
+                    criteriaBuilder.between(voiture.get("kilometrage"),employeeSearchCriteria.getKilometrage(),employeeSearchCriteria.getKilometrage2())
             );
-        }*/
+        }
         //"start": "webpack-dev-server --inline --content-base . --history-api-fallback" add to webpack-dev-server
         if(Objects.nonNull(employeeSearchCriteria.getUser())){
             predicates.add(
@@ -471,6 +497,25 @@ public class ClientCriteriaRepository {
         Join<Client, Contrat> details = root.join("contrat");
         criteriaQuerytest.multiselect(details.get("pointVente"), criteriaBuilder.count(root));
         criteriaQuerytest.groupBy(details.get("pointVente"));
+
+        Predicate restriction = this.getPredicate(employeeSearchCriteria,root);  //where
+        if (restriction != null) {
+            criteriaQuerytest.where(restriction);
+        }
+        List<Object[]> result =  entityManager.createQuery(criteriaQuerytest).getResultList();
+        System.out.println(result);
+        return result ;
+    }
+    public List<Object[]> findAllModaliteChart(ClientPage clientPage,
+                                              ClientSearchCriteria employeeSearchCriteria) throws ParseException {
+
+
+
+        CriteriaQuery<Object[]> criteriaQuerytest = criteriaBuilder.createQuery(Object[].class);
+        Root<Client> root = criteriaQuerytest.from(Client.class);
+        Join<Client, Contrat> details = root.join("contrat");
+        criteriaQuerytest.multiselect(details.get("modalitePaiement"), criteriaBuilder.count(root));
+        criteriaQuerytest.groupBy(details.get("modalitePaiement"));
 
         Predicate restriction = this.getPredicate(employeeSearchCriteria,root);  //where
         if (restriction != null) {
