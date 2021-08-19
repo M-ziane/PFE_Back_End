@@ -11,6 +11,8 @@ import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.SingularAttribute;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.sql.SQLOutput;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -207,7 +209,7 @@ public class ClientCriteriaRepository {
         return result ;
     }*/
     //-----------Test Predict---------------
-    public List<Object[]> predict(ClientPage clientPage,
+    public List<Object[]>  predict(ClientPage clientPage,
                                 ClientSearchCriteria employeeSearchCriteria) throws ParseException {
         // nzid kilometrage o date prise f multiselect
 
@@ -608,4 +610,27 @@ public class ClientCriteriaRepository {
         return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
     }
 
+    //------Excel ----------
+    public List<Object[]> testamal(List<Predicted> predicteds) throws ParseException {
+        CriteriaQuery<Object[]> criteriaQuerytest = criteriaBuilder.createQuery(Object[].class);
+        Root<Client> root = criteriaQuerytest.from(Client.class);
+        Join<Client, Contrat> details = root.join("contrat");
+        Join<Contrat, Voiture> voiture = details.join("voitureA");
+        //criteriaQuerytest.multiselect(root.get("id"),root.get("name"),root.get("typologie"),voiture.get("marque"),voiture.get("modele"),details.get("pointVente"), details.get("nomVendeur"),details.get("dateComptabilisation"),voiture.get("immatriculation"),details.get("dpt"),root.get("num_tel1"),root.get("num_tel2"),root.get("num_tel3"),root.get("email"),root.get("ville"),root.get("codePostal"),root.get("adresse"),root.get("code"));
+        criteriaQuerytest.multiselect(root.get("id"),root.get("name"),root.get("num_tel1"),root.get("num_tel2"),root.get("num_tel3"));
+        List<String> names = new ArrayList<>();
+        List<String> voitures = new ArrayList<>();
+        //List<Predicate> subQueryPredicates = new ArrayList<Predicate>();
+    for (Predicted predicted:predicteds){
+        names.add(predicted.getNom());
+    }
+
+        //subQueryPredicates.add(criteriaBuilder.equal(details.get("dateComptabilisation"), predicted.getDateComptabilisation()));
+        criteriaQuerytest.where(root.get("name").in(names));
+
+
+        List<Object[]> results = entityManager.createQuery(criteriaQuerytest).getResultList();
+        System.out.println("results size :"+results.size());
+        return results;
+    }
 }

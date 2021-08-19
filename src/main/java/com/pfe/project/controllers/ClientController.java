@@ -285,26 +285,30 @@ public class ClientController {
 //duree pour atteindre 10 000 km
                 double Dm = ((double)tot*10000) / kilometrage;
                 System.out.println("Dm,duree pour atteindre 10 000 km :"+Dm);
+//Marge d'erreur :(+/-).
+                 double Dmr = (Dm/10)*3;
+                System.out.println("marge d'erreur :"+Dmr);
 //duree depuis date contrat a aujourd'hui  end => today
                 long diffInMillie = Math.abs(end.getTime() - date1.getTime());
                 long a = TimeUnit.DAYS.convert(diffInMillie, TimeUnit.MILLISECONDS);
                 System.out.println("a duree entre date achat et aujourd'hui :"+a);
                 double x =a/Dm;
                 System.out.println("a/DM :"+x);
-
+//x=c,xx
                 long c = (long)x;
                 double roundDbl = Math.round(x*10000.0)/10000.0;
                 System.out.println(roundDbl);
+//Dp=0,xx
                 double Dp = (1 -( roundDbl-c ));
 
                 if(diffInMillies==0 || tot == 0 || Dm ==0.0) continue;
                 double rkmli7 = c*Dm + Dp;
                 System.out.println("rk mli7 :"+rkmli7);
-
+//date1 to local date
                 LocalDate date11 = date1.toInstant()
                         .atZone(ZoneId.systemDefault())
                         .toLocalDate();
-//add 5 days
+//add days
                 LocalDate datepred = date11.plusDays((long) rkmli7);
                 System.out.println("Date Predicted : "+datepred);
                 Date pred =java.sql.Date.valueOf(datepred);
@@ -405,6 +409,9 @@ public class ClientController {
 //duree pour atteindre 10 000 km
                 double Dm = ((double)tot*10000) / kilometrage;
                 System.out.println("Dm,duree pour atteindre 10 000 km :"+Dm);
+                //Marge d'erreur :(+/-).
+                double Dmr = (Dm/10)*2;
+                System.out.println("marge d'erreur :"+Dmr);
 //duree depuis date contrat a aujourd'hui  end => today
                 long diffInMillie = Math.abs(end.getTime() - date1.getTime());
                 long a = TimeUnit.DAYS.convert(diffInMillie, TimeUnit.MILLISECONDS);
@@ -437,6 +444,12 @@ public class ClientController {
 
 //add 5 days
                 LocalDate datepred = date11.plusDays((long) rkmli7);
+        //add margine
+                double rkmli72 = c*Dm + Dp - Dmr ;
+                double rkmli71 = c*Dm + Dp+Dmr ;
+                LocalDate datepred1 = date11.plusDays((long) rkmli71);
+                LocalDate datepred2 = date11.plusDays((long) rkmli72);
+
                 System.out.println("Date Predicted : "+datepred);
 /*
                 LocalDateTime ldt = LocalDateTime.from(date1.toInstant()).plusDays(D);
@@ -444,8 +457,10 @@ public class ClientController {
                 Date pred = java.sql.Timestamp.valueOf(ldt);
 */
             Date pred =java.sql.Date.valueOf(datepred);
+                Date pred1 =java.sql.Date.valueOf(datepred1);
+                Date pred2 =java.sql.Date.valueOf(datepred2);
 
-                if(start.compareTo(pred) *pred.compareTo(end) >= 0) {
+                if((start.compareTo(pred) *pred.compareTo(end) >= 0)||((start.compareTo(pred1) *pred.compareTo(end) >= 0))||((start.compareTo(pred2) *pred.compareTo(end) >= 0))) {
                     clientsP.add(anObject);
                     predicted.setId((Long) fields[0]);
                     predicted.setMarque((String) fields[3]);
@@ -465,7 +480,8 @@ public class ClientController {
             }
 
             System.out.println("clientsP :"+clientsP);
-
+            predictedRepository.deleteAll();
+            predictedRepository.flush();
             predictedRepository.saveAll(predicteds);
             //traitement 3la clients -->
             System.out.println("hrira slkt ");
@@ -509,6 +525,35 @@ public class ClientController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    //---------
+    @GetMapping("/clients/pd")
+    @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING') or hasRole('ROLE_USER')")
+    public ResponseEntity<Map<String, Object>> preddd(ClientPage clientPage, ClientSearchCriteria clientSearchCriteria) {
+        try {
+            List<Client> clients = new ArrayList<Client>();
+            Pageable paging = PageRequest.of(clientPage.getPageNumber(), clientPage.getPageSize());
+            List<Predicted> predictedList = predictedRepository.findAll();
+
+            List<Object[]> predicteds = clientCriteriaRepository.testamal(predictedList);
+            //predicteds = slm.getContent();
+            //System.out.println("slm"+slm.getSize());
+            System.out.println("predicteds :"+predicteds.size());
+            //System.out.println("total pages ///"+clientPage.getTotalElements());
+            Map<String, Object> response = new HashMap<>();
+            //System.out.println(predicteds.get(1).getId() +": date :" +predicteds.get(1).getDateComptabilisation());
+
+            clientPage.setTotalElements(predictedRepository.count());
+
+            response.put("clients", predicteds);
+            response.put("currentPage", clientPage.getPageNumber());
+            response.put("totalPages", clientPage.getTotalElements());
+            //response.put("totalPages",totalElements);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
     //------------------------------------
     @GetMapping("/clients/sexe")
     @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING') or hasRole('ROLE_USER')")
@@ -523,7 +568,6 @@ public class ClientController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
     @GetMapping("/clients/typologie")
     @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING') or hasRole('ROLE_USER')")
     public ResponseEntity<List<Object[]>> motalt1(ClientPage clientPage, ClientSearchCriteria clientSearchCriteria) {
@@ -560,10 +604,6 @@ public class ClientController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-//-------->>>>>>>>
-
-    //--------->>>>>>>>>>>>
-
     @GetMapping("/clients/modeleList")
     @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING') or hasRole('ROLE_USER')")
     public ResponseEntity<Long> motalt3tab(ClientPage clientPage, ClientSearchCriteria clientSearchCriteria) {
@@ -590,7 +630,6 @@ public class ClientController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
     @GetMapping("/clients/ptVente")
     @PreAuthorize("hasRole('CALL_CENTER') or hasRole('CC') or hasRole('MARKETING') or hasRole('ROLE_USER')")
     public ResponseEntity<List<Object[]>> motalt4(ClientPage clientPage, ClientSearchCriteria clientSearchCriteria) {
